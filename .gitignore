@@ -2,3 +2,4 @@
 vendor
 pkg/*
 *.lock
+docs/node_modules/*
