@@ -1,0 +1,6 @@
+hash: 7084fcf914822c039dcb5bcc678efd1af444b880fb63b5924edb5115754ec2b6
+updated: 2017-04-22T19:52:44.0877523+08:00
+imports:
+- name: github.com/go-martini/martini
+  version: 49411a5b646861ad29a6ddd5351717a0a9c49b94
+testImports: []
