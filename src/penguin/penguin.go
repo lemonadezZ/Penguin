@@ -1,14 +1,9 @@
 package penguin
 
-import (
-	"fmt"
-)
-
+//定义日志级别
 const DEBUG, INFO, WARN, ERROR, FATAL int = 0, 1, 2, 3, 4
 
-// 主函数
+//定义主函数
 func Main() {
-	logger(DEBUG, "日志")
-	hostname := Config("hostname")
-	fmt.Println(hostname)
+	TCPServer()
 }
