@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"net"
+	"time"
 )
 
 const hostname string = "0.0.0.0"
@@ -35,7 +36,41 @@ func RunServer(listen *net.TCPListener) {
 		fmt.Println("执行go协程处理客户连接")
 		go func() {
 			data := make([]byte, 128)
-
+			lasttimeChan := make(chan int64, time.Now().Unix())
+			lasttimeChan <- time.Now().Unix()
+			go func(conn *net.TCPConn, lasttimeChan chan int64) {
+				overtime := <-lasttimeChan
+				//判定是否超时
+				for {
+					//大于10秒发ping 包
+					select {
+					case el := <-lasttimeChan:
+						overtime = el
+						// fmt.Println("收到最后更新数据")
+						// fmt.Println(el)
+					default:
+						// now := time.Now().Unix()
+						// fmt.Print(overtime)
+						// fmt.Print(now)
+						// fmt.Println(now-)
+						if (time.Now().Unix() - overtime) > 10 {
+							conn.Write([]byte(time.Now().Format("2006-01-02 03:04:05 PM")))
+							conn.Write([]byte("ping\r\nS:"))
+						} else {
+							// fmt.Println("没有超时")
+							// fmt.Println(overtime)
+						}
+					}
+					time.Sleep(time.Second * 2)
+					// if (overtime - time.Now().Unix()) > 10 {
+					// 	conn.Write([]byte(time.Now().Format("2006-01-02 03:04:05 PM")))
+					// 	conn.Write([]byte("ping\r\nS:"))
+					// } else {
+					// 	fmt.Println("没有超时")
+					// 	fmt.Println(overtime)
+					// }
+				}
+			}(conn, lasttimeChan)
 			var buffer bytes.Buffer
 			conn.Write([]byte("hello Welcome to penguin\r\n"))
 			conn.Write([]byte("S:"))
@@ -50,6 +85,8 @@ func RunServer(listen *net.TCPListener) {
 				// r := string(data[0:i])
 				next := data[i-1 : i][0]
 				if next == 10 {
+					lasttimeChan <- time.Now().Unix()
+					conn.Write([]byte(time.Now().Format("2006-01-02 03:04:05 PM")))
 					//clean
 					fmt.Print(conn.RemoteAddr().String() + " :")
 					fmt.Print(buffer.String())
